@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark" data-fontsize="md">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · Hotel Booking Demand</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<style>
+/* ============================================================
+   TOKENS — TEMA ESCURO (padrão)
+============================================================ */
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--border:#2a3142;
+  --gold:#e8b84b;--gold2:#f5d27a;--green:#3fb950;--red:#f85149;--blue:#58a6ff;
+  --txt:#e6edf3;--muted:#8b949e;
+  --kpi-grad-a:#161b22;--kpi-grad-b:#1c2333;
+  --chart-card:#161b22;
+  --shadow:0 8px 24px rgba(0,0,0,.45);
+  --focus:#f5d27a;
+  --fs-base:16px;
+}
+/* ============================================================
+   TEMA CLARO
+============================================================ */
+html[data-theme="light"]{
+  --bg:#f3f5f9;--bg2:#ffffff;--bg3:#eef1f6;--border:#d0d7de;
+  --gold:#a06b0a;--gold2:#8a5a04;--green:#1a7f37;--red:#cf222e;--blue:#0969da;
+  --txt:#1f2328;--muted:#57606a;
+  --kpi-grad-a:#ffffff;--kpi-grad-b:#f6f8fa;
+  --chart-card:#ffffff;
+  --shadow:0 4px 18px rgba(140,150,170,.18);
+  --focus:#a06b0a;
+}
+/* ============================================================
+   TAMANHO DE FONTE
+============================================================ */
+html[data-fontsize="sm"]{--fs-base:14px}
+html[data-fontsize="md"]{--fs-base:16px}
+html[data-fontsize="lg"]{--fs-base:18px}
+html[data-fontsize="xl"]{--fs-base:20px}
+html{font-size:var(--fs-base);scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden;line-height:1.5}
+
+/* ============================================================
+   ACESSIBILIDADE — WCAG 2.1 AA
+============================================================ */
+.skip-link{
+  position:absolute;top:-60px;left:12px;background:var(--gold);color:#0d1117;
+  padding:10px 18px;border-radius:0 0 8px 8px;font-weight:800;text-decoration:none;
+  z-index:9999;transition:top .2s;
+}
+.skip-link:focus{top:0;outline:3px solid var(--focus);outline-offset:2px}
+*:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+button{cursor:pointer;font-family:inherit}
+
+/* Contraste alto forçado */
+html[data-contrast="high"]{
+  --muted:#c9d1d9;--border:#8b949e;
+}
+html[data-contrast="high"][data-theme="light"]{--muted:#24292f;--border:#57606a}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:260px;background:var(--bg2);
+  border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;z-index:1000;
+  transition:transform .3s ease;
+}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:0 22px 22px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar-brand .icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#a47a1f);display:flex;align-items:center;justify-content:center;color:#0d1117;font-size:18px;box-shadow:0 4px 12px rgba(232,184,75,.3);flex-shrink:0}
+.sidebar-brand h5{margin:0;font-size:.94rem;font-weight:700;color:var(--txt)}
+.sidebar-brand small{color:var(--muted);font-size:.68rem}
+.nav-section{color:var(--muted);font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;padding:14px 22px 8px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 22px;color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:.2s;user-select:none;background:transparent;border-top:0;border-right:0;border-bottom:0;text-align:left;width:100%}
+.nav-item:hover{background:var(--bg3);color:var(--txt)}
+.nav-item.active{background:rgba(232,184,75,.08);color:var(--gold);border-left-color:var(--gold);font-weight:600}
+.nav-item i{width:18px;text-align:center;font-size:.87rem;flex-shrink:0}
+.nav-item .badge-pill{margin-left:auto;background:rgba(232,184,75,.2);color:var(--gold);font-size:.62rem;padding:2px 8px;border-radius:999px;font-weight:700}
+.sidebar-footer{padding:20px 22px;margin-top:20px;border-top:1px solid var(--border)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a47a1f);color:#0d1117;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:.2s;text-decoration:none}
+.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px);color:#0d1117}
+.btn-gold:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* ============================================================
+   MAIN + TOPBAR
+============================================================ */
+.main{margin-left:260px;min-height:100vh;transition:margin-left .3s;display:flex;flex-direction:column}
+.topbar{
+  background:color-mix(in srgb,var(--bg2) 92%, transparent);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  position:sticky;top:0;z-index:900;flex-wrap:wrap;
+}
+.topbar h1{font-size:.94rem;font-weight:700;margin:0;display:flex;align-items:center;gap:10px;color:var(--txt)}
+.topbar h1 i{color:var(--gold)}
+.topbar .search{position:relative;width:280px;flex-shrink:0}
+.topbar .search input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--txt);padding:8px 14px 8px 34px;border-radius:8px;font-size:.78rem;outline:none;font-family:inherit}
+.topbar .search input:focus{border-color:var(--gold)}
+.topbar .search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.75rem}
+
+/* TOOLBAR A11Y */
+.a11y-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.a11y-btn{
+  width:38px;height:38px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;
+  transition:.2s;position:relative;
+}
+.a11y-btn:hover{border-color:var(--gold);color:var(--gold)}
+.a11y-btn.active{background:rgba(232,184,75,.15);border-color:var(--gold);color:var(--gold)}
+.a11y-btn.wide{width:auto;padding:0 12px;font-size:.72rem;font-weight:700;gap:6px;letter-spacing:.4px}
+.a11y-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============================================================
+   CONTENT
+============================================================ */
+.content{padding:24px 28px 40px;flex:1}
+
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:linear-gradient(160deg,var(--kpi-grad-a),var(--kpi-grad-b));
+  border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:rgba(232,184,75,.35)}
+.kpi-card::after{content:'';position:absolute;top:-40px;right:-40px;width:110px;height:110px;background:radial-gradient(circle,rgba(232,184,75,.18),transparent 70%);pointer-events:none}
+.kpi-card .lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.kpi-card .lbl i{color:var(--gold);font-size:.75rem}
+.kpi-card .val{font-size:1.6rem;font-weight:800;line-height:1.1;color:var(--txt)}
+.kpi-card .val.gold{color:var(--gold)}
+.kpi-card .val.green{color:var(--green)}
+.kpi-card .val.red{color:var(--red)}
+.kpi-card .trend{font-size:.72rem;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px}
+
+/* CARDS DE GRÁFICO */
+.card-c{background:var(--chart-card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;position:relative}
+.card-c h4{font-size:.88rem;font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:9px;color:var(--txt);padding-right:130px}
+.card-c h4 i{color:var(--gold);font-size:.87rem}
+.card-c h4 small{color:var(--muted);font-weight:400;margin-left:auto;font-size:.7rem}
+.chart-box{position:relative;height:300px;width:100%}
+.chart-box.tall{height:340px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+
+/* BOTÕES DE DOWNLOAD DO GRÁFICO */
+.chart-tools{
+  position:absolute;top:14px;right:16px;display:flex;gap:6px;
+}
+.chart-tools button{
+  width:30px;height:30px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);
+  color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;transition:.2s;
+}
+.chart-tools button:hover{border-color:var(--gold);color:var(--gold);background:rgba(232,184,75,.1)}
+.chart-tools button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* TABELAS */
+.table-wrap{overflow-x:auto}
+.table-custom{width:100%;border-collapse:collapse;font-size:.8rem}
+.table-custom th{background:var(--bg3);color:var(--gold);padding:10px 12px;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap}
+.table-custom td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--txt)}
+.table-custom tr:hover td{background:var(--bg3)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:700}
+.pill.red{background:rgba(248,81,73,.15);color:#ff7b72}
+.pill.green{background:rgba(63,185,80,.15);color:#56d364}
+.pill.gold{background:rgba(232,184,75,.15);color:var(--gold)}
+html[data-theme="light"] .pill.red{background:rgba(207,34,46,.12);color:#cf222e}
+html[data-theme="light"] .pill.green{background:rgba(26,127,55,.12);color:#1a7f37}
+html[data-theme="light"] .pill.gold{background:rgba(160,107,10,.12);color:#a06b0a}
+
+/* QA */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qa-c{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:36px 1fr;gap:12px;transition:.2s}
+.qa-c:hover{border-color:rgba(232,184,75,.35);transform:translateY(-2px)}
+.qa-c .num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#a47a1f);color:#0d1117;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem}
+.qa-c .q{font-weight:700;font-size:.8rem;color:var(--gold2);margin-bottom:4px}
+.qa-c .a{font-size:.78rem;color:var(--muted);line-height:1.55}
+.qa-c .a b{color:var(--txt)}
+
+/* REC */
+.rec-card{background:var(--bg2);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:12px;padding:18px 20px;margin-bottom:14px;display:flex;gap:16px;align-items:flex-start;transition:.2s}
+.rec-card:hover{border-left-color:var(--gold2);box-shadow:var(--shadow);transform:translateX(4px)}
+.rec-card .ico{width:44px;height:44px;border-radius:12px;background:rgba(232,184,75,.12);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.rec-card h5{font-size:.9rem;font-weight:700;margin:0 0 4px;color:var(--txt)}
+.rec-card p{margin:0;font-size:.8rem;color:var(--muted);line-height:1.55}
+.rec-card .impact{display:inline-block;margin-top:8px;font-size:.7rem;font-weight:700;color:var(--green);background:rgba(63,185,80,.12);padding:3px 10px;border-radius:999px}
+
+/* CHIP / HEADERS */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:.7rem;font-weight:700;background:rgba(232,184,75,.12);color:var(--gold);border:1px solid rgba(232,184,75,.25)}
+.chip.green{background:rgba(63,185,80,.12);color:var(--green);border-color:rgba(63,185,80,.3)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.section-header h2{font-size:1.15rem;font-weight:800;margin:0;display:flex;align-items:center;gap:12px;color:var(--txt)}
+.section-header h2 i{color:var(--gold);font-size:1.05rem}
+.section-header p{margin:0;color:var(--muted);font-size:.8rem}
+
+.toggle-mobile{display:none;background:var(--bg2);border:1px solid var(--border);color:var(--gold);width:38px;height:38px;border-radius:8px;cursor:pointer}
+
+/* ============================================================
+   RODAPÉ
+============================================================ */
+.footer{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:28px 32px 20px;margin-top:auto;color:var(--muted);
+}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:32px;margin-bottom:20px}
+.footer h6{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:800;margin:0 0 12px}
+.footer p{font-size:.75rem;line-height:1.7;margin:0 0 8px}
+.footer ul{list-style:none;padding:0;margin:0;font-size:.75rem;line-height:1.9}
+.footer ul li a{color:var(--muted);text-decoration:none;transition:.2s}
+.footer ul li a:hover{color:var(--gold);text-decoration:underline}
+.footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.footer-brand .icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#a47a1f);display:flex;align-items:center;justify-content:center;color:#0d1117;font-size:.9rem}
+.footer-brand strong{color:var(--txt);font-size:.85rem}
+.footer-bottom{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:.7rem}
+.footer-bottom .a11y-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(63,185,80,.12);color:var(--green);border-radius:999px;font-weight:700;font-size:.65rem;letter-spacing:.5px}
+
+/* VLIBRAS */
+[vw] .vw-access-button{right:20px!important;bottom:80px!important}
+
+/* RESPONSIVO */
+@media (max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.grid-2-1{grid-template-columns:1fr}
+  .qa-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar .search{display:none}
+  .toggle-mobile{display:block}
+  .kpi-grid{grid-template-columns:1fr}
+  .content{padding:16px}
+  .footer-grid{grid-template-columns:1fr}
+  .card-c h4{padding-right:0}
+}
+
+/* IMPRESSÃO */
+@media print{
+  .sidebar,.topbar .a11y-toolbar,.topbar .search,.chart-tools,.toggle-mobile,[vw]{display:none!important}
+  .main{margin-left:0}
+  body{background:#fff;color:#000}
+  .panel{display:block!important;page-break-after:always}
+  .card-c{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- A11Y SKIP LINK -->
+<a href="#main-content" class="skip-link">Pular para conteúdo principal</a>
+
+<!-- ============================================== SIDEBAR ============================================== -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu principal">
+  <div class="sidebar-brand">
+    <div class="icon" aria-hidden="true"><i class="fa-solid fa-hotel"></i></div>
+    <div>
+      <h5>Hotel Analytics</h5>
+      <small>Booking Demand · EDA</small>
+    </div>
+  </div>
+
+  <div class="nav-section" id="nav-1">Visão Geral</div>
+  <button class="nav-item active" data-panel="overview" aria-current="page"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Overview <span class="badge-pill">37%</span></button>
+  <button class="nav-item" data-panel="hotels"><i class="fa-solid fa-building" aria-hidden="true"></i> Hotéis</button>
+  <button class="nav-item" data-panel="clients"><i class="fa-solid fa-users" aria-hidden="true"></i> Clientes</button>
+
+  <div class="nav-section">Análise</div>
+  <button class="nav-item" data-panel="seasonality"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Sazonalidade</button>
+  <button class="nav-item" data-panel="geography"><i class="fa-solid fa-earth-europe" aria-hidden="true"></i> Geografia</button>
+  <button class="nav-item" data-panel="questions"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Perguntas</button>
+
+  <div class="nav-section">Ação</div>
+  <button class="nav-item" data-panel="recommendations"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Recomendações</button>
+  <button class="nav-item" data-panel="references"><i class="fa-solid fa-book" aria-hidden="true"></i> Referências</button>
+
+  <div class="sidebar-footer">
+    <a class="btn-gold" href="relatorio_executivo.html" target="_blank" rel="noopener" aria-label="Baixar relatório executivo em PDF">
+      <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Baixar Relatório
+    </a>
+  </div>
+</aside>
+
+<!-- ============================================== MAIN ============================================== -->
+<div class="main">
+
+  <header class="topbar" role="banner">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="toggle-mobile" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Alternar menu lateral" aria-expanded="false">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
+      <h1><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Dashboard · Hotel Booking Demand</h1>
+    </div>
+
+    <div class="search" role="search">
+      <label for="searchInput" class="sr-only">Buscar no dashboard</label>
+      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      <input id="searchInput" type="search" placeholder="Buscar país, cliente, métrica...">
+    </div>
+
+    <!-- TOOLBAR DE ACESSIBILIDADE -->
+    <div class="a11y-toolbar" role="toolbar" aria-label="Ferramentas de acessibilidade">
+      <!-- Tema -->
+      <button class="a11y-btn" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Tema claro/escuro" aria-pressed="false">
+        <i class="fa-solid fa-moon" aria-hidden="true" id="themeIcon"></i>
+      </button>
+
+      <!-- Tamanho da fonte -->
+      <button class="a11y-btn" id="fontDec" aria-label="Diminuir tamanho da fonte" title="Diminuir fonte (A-)"><i class="fa-solid fa-a" style="font-size:.7rem" aria-hidden="true"></i></button>
+      <button class="a11y-btn wide" id="fontReset" aria-label="Restaurar tamanho padrão da fonte" title="Fonte padrão">A</button>
+      <button class="a11y-btn" id="fontInc" aria-label="Aumentar tamanho da fonte" title="Aumentar fonte (A+)"><i class="fa-solid fa-a" style="font-size:1rem" aria-hidden="true"></i></button>
+
+      <!-- Alto contraste -->
+      <button class="a11y-btn" id="contrastToggle" aria-label="Ativar/desativar alto contraste" title="Alto contraste" aria-pressed="false">
+        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+      </button>
+
+      <!-- VLibras -->
+      <button class="a11y-btn" id="vlibrasToggle" aria-label="Ativar/desativar tradutor de Libras" title="Libras (VLibras)">
+        <i class="fa-solid fa-hands-asl-interpreting" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="content" id="main-content" role="main">
+
+    <!-- ============ OVERVIEW ============ -->
+    <section class="panel active" id="panel-overview" aria-labelledby="h-overview">
+      <div class="section-header">
+        <div><h2 id="h-overview"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Visão Geral</h2><p>Panorama consolidado das 119.390 reservas</p></div>
+        <span class="chip"><i class="fa-solid fa-calendar" aria-hidden="true"></i> Jul/2015 – Ago/2017</span>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-database" aria-hidden="true"></i> Total de Reservas</div><div class="val">119.390</div><div class="trend"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Base completa</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Confirmadas</div><div class="val green">75.166</div><div class="trend"><i class="fa-solid fa-percent" aria-hidden="true"></i> 63,00%</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Canceladas</div><div class="val red">44.224</div><div class="trend"><i class="fa-solid fa-percent" aria-hidden="true"></i> 37,00%</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-dollar-sign" aria-hidden="true"></i> ADR Médio</div><div class="val gold">US$ 101,83</div><div class="trend">σ = US$ 50,54</div></div>
+      </div>
+
+      <div class="grid-2-1">
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('overview','Proporcao_Global')" aria-label="Baixar gráfico Proporção Global em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Proporção Global <small>N = 119.390</small></h4>
+          <div class="chart-box tall"><canvas id="chartOverview" role="img" aria-label="Gráfico de rosca mostrando 63% de reservas confirmadas e 37% canceladas"></canvas></div>
+        </div>
+        <div class="card-c">
+          <h4><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> KPIs Rápidos</h4>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:6px">
+            <div><div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700">Lead Time Médio</div><div style="font-size:1.35rem;font-weight:800;color:var(--gold)">112,4 dias</div></div>
+            <div style="height:1px;background:var(--border)"></div>
+            <div><div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700">Pico Sazonal</div><div style="font-size:1.1rem;font-weight:800">Agosto</div><div style="font-size:.75rem;color:var(--muted)">13.877 reservas · US$ 140,11</div></div>
+            <div style="height:1px;background:var(--border)"></div>
+            <div><div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700">Top País</div><div style="font-size:1.1rem;font-weight:800">Portugal</div><div style="font-size:.75rem;color:var(--muted)">48.550 reservas</div></div>
+            <div style="height:1px;background:var(--border)"></div>
+            <div><div style="color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:700">Risco Transient</div><div style="font-size:1.1rem;font-weight:800;color:var(--red)">40,75%</div><div style="font-size:.75rem;color:var(--muted)">taxa de cancelamento</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOTELS ============ -->
+    <section class="panel" id="panel-hotels" aria-labelledby="h-hotels">
+      <div class="section-header"><div><h2 id="h-hotels"><i class="fa-solid fa-building" aria-hidden="true"></i> Análise por Tipo de Hotel</h2><p>City Hotel vs Resort Hotel</p></div></div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-city" aria-hidden="true"></i> City · Cancelamento</div><div class="val red">41,73%</div><div class="trend"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> acima do Resort</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-city" aria-hidden="true"></i> City · Confirmação</div><div class="val green">58,27%</div><div class="trend">do total City</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i> Resort · Cancelamento</div><div class="val green">27,76%</div><div class="trend"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> mais estável</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Concentração</div><div class="val gold">75%</div><div class="trend">dos cancelamentos no City</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('hotels','Status_por_Hotel')" aria-label="Baixar gráfico Status por Hotel em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Status por Tipo de Hotel</h4>
+          <div class="chart-box"><canvas id="chartHotels" role="img" aria-label="Gráfico de barras agrupadas comparando confirmação e cancelamento entre City Hotel e Resort Hotel"></canvas></div>
+        </div>
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('composicao','Composicao_Hospedes')" aria-label="Baixar gráfico Composição de Hóspedes em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-children" aria-hidden="true"></i> Composição de Hóspedes (100%)</h4>
+          <div class="chart-box"><canvas id="chartComposicao" role="img" aria-label="Gráfico de barras empilhadas mostrando composição de adultos, crianças e bebês por hotel"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card-c">
+        <h4><i class="fa-solid fa-table" aria-hidden="true"></i> Comparativo Detalhado</h4>
+        <div class="table-wrap">
+          <table class="table-custom">
+            <thead><tr><th scope="col">Métrica</th><th scope="col">City Hotel</th><th scope="col">Resort Hotel</th></tr></thead>
+            <tbody>
+              <tr><td>Taxa de Cancelamento</td><td><span class="pill red">41,73%</span></td><td><span class="pill green">27,76%</span></td></tr>
+              <tr><td>Taxa de Confirmação</td><td><span class="pill green">58,27%</span></td><td><span class="pill green">72,24%</span></td></tr>
+              <tr><td>Composição Adultos</td><td>95,05%</td><td>92,91%</td></tr>
+              <tr><td>Crianças + Bebês</td><td>4,94%</td><td><b style="color:var(--gold)">7,09%</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CLIENTS ============ -->
+    <section class="panel" id="panel-clients" aria-labelledby="h-clients">
+      <div class="section-header"><div><h2 id="h-clients"><i class="fa-solid fa-users" aria-hidden="true"></i> Perfil dos Clientes</h2><p>Segmentação e comportamento de reserva</p></div></div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-user" aria-hidden="true"></i> Transient</div><div class="val red">40,75%</div><div class="trend">cancelamento</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-people-group" aria-hidden="true"></i> Group</div><div class="val green">89,77%</div><div class="trend">confirmação</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-clock" aria-hidden="true"></i> Lead Time Cancelados</div><div class="val red">144,85 d</div><div class="trend">+81% vs confirmados</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-clock" aria-hidden="true"></i> Lead Time Confirmados</div><div class="val green">79,98 d</div><div class="trend">média geral</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('cliente','Status_por_Cliente')" aria-label="Baixar gráfico Status por Tipo de Cliente em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-user-tag" aria-hidden="true"></i> Status por Tipo de Cliente</h4>
+          <div class="chart-box"><canvas id="chartCliente" role="img" aria-label="Gráfico de barras empilhadas mostrando status de reserva por tipo de cliente"></canvas></div>
+        </div>
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('lead','Lead_Time')" aria-label="Baixar gráfico Lead Time em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-stopwatch" aria-hidden="true"></i> Lead Time: Cancelados vs Confirmados</h4>
+          <div class="chart-box"><canvas id="chartLead" role="img" aria-label="Gráfico de barras horizontais comparando lead time médio entre reservas canceladas e confirmadas"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card-c">
+        <h4><i class="fa-solid fa-table-list" aria-hidden="true"></i> Detalhamento por Tipo de Cliente</h4>
+        <div class="table-wrap">
+          <table class="table-custom">
+            <thead><tr><th scope="col">Tipo</th><th scope="col">Cancelamentos</th><th scope="col">Confirmados</th><th scope="col">Total</th><th scope="col">Taxa</th></tr></thead>
+            <tbody>
+              <tr><td><b>Transient</b></td><td>36.514</td><td>53.099</td><td>89.613</td><td><span class="pill red">40,75%</span></td></tr>
+              <tr><td>Transient-Party</td><td>6.389</td><td>18.735</td><td>25.124</td><td><span class="pill gold">25,43%</span></td></tr>
+              <tr><td>Contract</td><td>1.262</td><td>2.814</td><td>4.076</td><td><span class="pill gold">30,96%</span></td></tr>
+              <tr><td><b>Group</b></td><td>59</td><td>518</td><td>577</td><td><span class="pill green">10,23%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SEASONALITY ============ -->
+    <section class="panel" id="panel-seasonality" aria-labelledby="h-seasonality">
+      <div class="section-header"><div><h2 id="h-seasonality"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Sazonalidade & ADR</h2><p>Volume de reservas e tarifa média por mês</p></div></div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Pico Agosto</div><div class="val gold">13.877</div><div class="trend">US$ 140,11</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Vale Janeiro</div><div class="val">5.929</div><div class="trend">US$ 70,36</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> ADR Médio</div><div class="val gold">US$ 101,83</div><div class="trend">σ = 50,54</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> Assimetria</div><div class="val">1,05</div><div class="trend">cauda à direita</div></div>
+      </div>
+
+      <div class="card-c">
+        <div class="chart-tools">
+          <button onclick="downloadChart('seasonal','Sazonalidade_ADR')" aria-label="Baixar gráfico Sazonalidade em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+        </div>
+        <h4><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Volume × ADR por Mês <small>Jul/2015 – Ago/2017</small></h4>
+        <div class="chart-box tall"><canvas id="chartSeasonal" role="img" aria-label="Gráfico combinado de barras mostrando volume de reservas e linha mostrando ADR por mês"></canvas></div>
+      </div>
+
+      <div class="card-c">
+        <h4><i class="fa-solid fa-table-list" aria-hidden="true"></i> Detalhamento Mensal</h4>
+        <div class="table-wrap">
+          <table class="table-custom">
+            <thead><tr><th scope="col">Mês</th><th scope="col">Reservas</th><th scope="col">ADR (US$)</th><th scope="col">Classificação</th></tr></thead>
+            <tbody id="tbodySeasonal"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GEOGRAPHY ============ -->
+    <section class="panel" id="panel-geography" aria-labelledby="h-geography">
+      <div class="section-header"><div><h2 id="h-geography"><i class="fa-solid fa-earth-europe" aria-hidden="true"></i> Mercados Emissores</h2><p>Origem dos hóspedes e cancelamento por país</p></div></div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-crown" aria-hidden="true"></i> Top País</div><div class="val gold">Portugal</div><div class="trend">48.550 reservas</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Maior Cancelamento</div><div class="val red">27.519</div><div class="trend">Portugal · 56,64%</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-flag" aria-hidden="true"></i> 2º Mercado</div><div class="val">Reino Unido</div><div class="trend">12.129 reservas</div></div>
+        <div class="kpi-card"><div class="lbl"><i class="fa-solid fa-globe" aria-hidden="true"></i> Países Ativos</div><div class="val gold">170+</div><div class="trend">origens mapeadas</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('paises','Top10_Paises_Volume')" aria-label="Baixar gráfico Top 10 Países em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-ranking-star" aria-hidden="true"></i> Top 10 Países por Volume</h4>
+          <div class="chart-box"><canvas id="chartPaises" role="img" aria-label="Gráfico de barras horizontais com Top 10 países por volume de reservas"></canvas></div>
+        </div>
+        <div class="card-c">
+          <div class="chart-tools">
+            <button onclick="downloadChart('cancelPaises','Top10_Cancelamentos')" aria-label="Baixar gráfico Top 10 Cancelamentos em PNG" title="Baixar PNG"><i class="fa-solid fa-image" aria-hidden="true"></i></button>
+          </div>
+          <h4><i class="fa-solid fa-fire" aria-hidden="true"></i> Top 10 Cancelamentos Absolutos</h4>
+          <div class="chart-box"><canvas id="chartCancelPaises" role="img" aria-label="Gráfico de barras horizontais com Top 10 países por número absoluto de cancelamentos"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card-c">
+        <h4><i class="fa-solid fa-table-list" aria-hidden="true"></i> Detalhe por País</h4>
+        <div class="table-wrap">
+          <table class="table-custom">
+            <thead><tr><th scope="col">País</th><th scope="col">Reservas</th><th scope="col">Cancelamentos</th><th scope="col">Taxa</th></tr></thead>
+            <tbody id="tbodyPaises"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ QUESTIONS ============ -->
+    <section class="panel" id="panel-questions" aria-labelledby="h-questions">
+      <div class="section-header"><div><h2 id="h-questions"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Respostas às Perguntas de Pesquisa</h2><p>8 perguntas fundamentais respondidas com base nos dados</p></div></div>
+      <div class="qa-grid" id="qaGrid"></div>
+    </section>
+
+    <!-- ============ RECOMMENDATIONS ============ -->
+    <section class="panel" id="panel-recommendations" aria-labelledby="h-recommendations">
+      <div class="section-header"><div><h2 id="h-recommendations"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> Recomendações Estratégicas</h2><p>Ações data-driven para redução de ociosidade</p></div></div>
+
+      <div class="rec-card"><div class="ico"><i class="fa-solid fa-lock" aria-hidden="true"></i></div><div><h5>1. Rigidez em Políticas de Depósito</h5><p>Depósito não reembolsável para reservas Transient com Lead Time &gt; 90 dias.</p><span class="impact"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> -20 a -30% cancelamento</span></div></div>
+      <div class="rec-card"><div class="ico"><i class="fa-solid fa-robot" aria-hidden="true"></i></div><div><h5>2. Overbooking Inteligente com Machine Learning</h5><p>Score preditivo por reserva no City Hotel para manobras seguras de overbooking.</p><span class="impact"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> +8 a +12% ocupação</span></div></div>
+      <div class="rec-card"><div class="ico"><i class="fa-solid fa-tags" aria-hidden="true"></i></div><div><h5>3. Campanhas Sazonais em Baixa Temporada</h5><p>Pacotes promocionais em Jan–Mar para estabilizar ocupação e sustentar ADR.</p><span class="impact"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> +15% ocupação off-season</span></div></div>
+      <div class="rec-card"><div class="ico"><i class="fa-solid fa-handshake" aria-hidden="true"></i></div><div><h5>4. Foco em Parcerias Corporativas e Grupos</h5><p>Ampliar mix do segmento Group (10,23% cancel.) em detrimento de Transient (40,75%).</p><span class="impact"><i class="fa-solid fa-shield" aria-hidden="true"></i> receita mais estável</span></div></div>
+      <div class="rec-card"><div class="ico"><i class="fa-solid fa-globe" aria-hidden="true"></i></div><div><h5>5. Diversificação Geográfica</h5><p>Reduzir dependência de Portugal (56,64% cancel.) com campanhas focadas em DE e FR.</p><span class="impact"><i class="fa-solid fa-arrows-split-up-and-left" aria-hidden="true"></i> portfólio balanceado</span></div></div>
+    </section>
+
+    <!-- ============ REFERENCES ============ -->
+    <section class="panel" id="panel-references" aria-labelledby="h-references">
+      <div class="section-header"><div><h2 id="h-references"><i class="fa-solid fa-book" aria-hidden="true"></i> Referências & Fontes</h2><p>Base metodológica e ferramentas utilizadas</p></div></div>
+
+      <div class="grid-2">
+        <div class="card-c">
+          <h4><i class="fa-solid fa-database" aria-hidden="true"></i> Base de Dados</h4>
+          <ul style="list-style:none;padding:0;font-size:.8rem;line-height:1.8;color:var(--muted);margin:0">
+            <li style="padding:10px 0;border-bottom:1px dashed var(--border)"><b style="color:var(--gold2)">ANTONIO, N.; ALMEIDA, A.; NUNES, L.</b> Hotel booking demand datasets. <i>Data in Brief</i>, v. 22, p. 41–49, 2019.</li>
+            <li style="padding:10px 0"><b style="color:var(--gold2)">KAGGLE.</b> Hotel Booking Demand. kaggle.com/datasets/jessemostipak/hotel-booking-demand</li>
+          </ul>
+        </div>
+        <div class="card-c">
+          <h4><i class="fa-solid fa-code" aria-hidden="true"></i> Ferramentas</h4>
+          <ul style="list-style:none;padding:0;font-size:.8rem;line-height:1.8;color:var(--muted);margin:0">
+            <li style="padding:8px 0"><b style="color:var(--gold2)">Python 3.x · Pandas · NumPy</b></li>
+            <li style="padding:8px 0"><b style="color:var(--gold2)">Matplotlib · Seaborn</b></li>
+            <li style="padding:8px 0"><b style="color:var(--gold2)">Scikit-learn · Missingno</b></li>
+            <li style="padding:8px 0"><b style="color:var(--gold2)">Chart.js · Bootstrap 5 · VLibras</b></li>
+          </ul>
+        </div>
+        <div class="card-c" style="grid-column:1/-1">
+          <h4><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Referências Metodológicas</h4>
+          <ul style="list-style:none;padding:0;font-size:.8rem;line-height:1.8;color:var(--muted);margin:0">
+            <li style="padding:10px 0;border-bottom:1px dashed var(--border)"><b style="color:var(--gold2)">TUKEY, J. W.</b> <i>Exploratory Data Analysis</i>. Addison-Wesley, 1977.</li>
+            <li style="padding:10px 0;border-bottom:1px dashed var(--border)"><b style="color:var(--gold2)">McKINNEY, W.</b> <i>Python for Data Analysis</i>, 3ª ed. O'Reilly, 2022.</li>
+            <li style="padding:10px 0;border-bottom:1px dashed var(--border)"><b style="color:var(--gold2)">W3C.</b> <i>Web Content Accessibility Guidelines (WCAG) 2.1</i>. 2018.</li>
+            <li style="padding:10px 0"><b style="color:var(--gold2)">PROJECT MANAGEMENT INSTITUTE (PMI).</b> <i>Business Analysis for Practitioners</i>, 2015.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================== RODAPÉ ============================================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">
+          <div class="icon" aria-hidden="true"><i class="fa-solid fa-hotel"></i></div>
+          <div><strong>Hotel Booking Demand</strong><br><small style="color:var(--muted);font-size:.7rem">Análise Exploratória de Dados · 2026</small></div>
+        </div>
+        <p>Dashboard interativo baseado no dataset público <i>Hotel Booking Demand</i> (Kaggle), com 119.390 registros e 32 variáveis operacionais. Desenvolvido com Python, Pandas, Chart.js e Bootstrap 5.</p>
+      </div>
+      <div>
+        <h6>Navegação</h6>
+        <ul>
+          <li><a href="#" onclick="document.querySelector('[data-panel=overview]').click();return false">Overview</a></li>
+          <li><a href="#" onclick="document.querySelector('[data-panel=hotels]').click();return false">Hotéis</a></li>
+          <li><a href="#" onclick="document.querySelector('[data-panel=clients]').click();return false">Clientes</a></li>
+          <li><a href="#" onclick="document.querySelector('[data-panel=seasonality]').click();return false">Sazonalidade</a></li>
+          <li><a href="#" onclick="document.querySelector('[data-panel=geography]').click();return false">Geografia</a></li>
+        </ul>
+      </div>
+      <div>
+        <h6>Recursos</h6>
+        <ul>
+          <li><a href="relatorio_executivo.html" target="_blank" rel="noopener">Relatório Executivo</a></li>
+          <li><a href="https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand" target="_blank" rel="noopener">Dataset original (Kaggle)</a></li>
+          <li><a href="https://www.w3.org/WAI/WCAG21/quickref/" target="_blank" rel="noopener">WCAG 2.1</a></li>
+          <li><a href="https://vlibras.gov.br/" target="_blank" rel="noopener">VLibras (Gov.br)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Hotel Analytics · Todos os direitos reservados</span>
+      <span class="a11y-badge"><i class="fa-solid fa-universal-access" aria-hidden="true"></i> WCAG 2.1 AA · Acessível</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ============================================== VLIBRAS ============================================== -->
+<div vw class="enabled" id="vlibrasWidget" style="display:none">
+  <div vw-access-button class="active"></div>
+  <div vw-plugin-wrapper>
+    <div class="vw-plugin-top-wrapper"></div>
+  </div>
+</div>
+
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+/* ============================================================
+   VLIBRAS — inicialização manual via botão
+============================================================= */
+let vlibrasLoaded = false;
+const vlibrasBtn = document.getElementById('vlibrasToggle');
+vlibrasBtn.addEventListener('click', () => {
+  const widget = document.getElementById('vlibrasWidget');
+  const isOn = widget.style.display !== 'none';
+  if (isOn) {
+    widget.style.display = 'none';
+    vlibrasBtn.classList.remove('active');
+    vlibrasBtn.setAttribute('aria-pressed','false');
+  } else {
+    widget.style.display = 'block';
+    vlibrasBtn.classList.add('active');
+    vlibrasBtn.setAttribute('aria-pressed','true');
+    if (!vlibrasLoaded && window.VLibras) {
+      new window.VLibras.Widget('https://vlibras.gov.br/app');
+      vlibrasLoaded = true;
+    }
+  }
+});
+
+/* ============================================================
+   TEMA CLARO / ESCURO
+============================================================= */
+const html = document.documentElement;
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+
+// Preferência do sistema na primeira carga
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+  html.setAttribute('data-theme','light');
+  themeIcon.classList.replace('fa-moon','fa-sun');
+}
+function applyTheme(t){
+  html.setAttribute('data-theme', t);
+  const isLight = t === 'light';
+  themeIcon.classList.toggle('fa-moon', !isLight);
+  themeIcon.classList.toggle('fa-sun', isLight);
+  themeToggle.setAttribute('aria-pressed', String(isLight));
+  updateChartsTheme();
+}
+themeToggle.addEventListener('click', () => {
+  applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+/* ============================================================
+   TAMANHO DA FONTE
+============================================================= */
+const sizes = ['sm','md','lg','xl'];
+let fsIndex = 1;
+document.getElementById('fontInc').addEventListener('click', () => {
+  fsIndex = Math.min(sizes.length - 1, fsIndex + 1);
+  html.setAttribute('data-fontsize', sizes[fsIndex]);
+  updateChartsTheme();
+});
+document.getElementById('fontDec').addEventListener('click', () => {
+  fsIndex = Math.max(0, fsIndex - 1);
+  html.setAttribute('data-fontsize', sizes[fsIndex]);
+  updateChartsTheme();
+});
+document.getElementById('fontReset').addEventListener('click', () => {
+  fsIndex = 1;
+  html.setAttribute('data-fontsize', sizes[fsIndex]);
+  updateChartsTheme();
+});
+
+/* ============================================================
+   ALTO CONTRASTE
+============================================================= */
+document.getElementById('contrastToggle').addEventListener('click', function(){
+  const on = html.getAttribute('data-contrast') === 'high';
+  if (on) { html.removeAttribute('data-contrast'); this.classList.remove('active'); this.setAttribute('aria-pressed','false'); }
+  else { html.setAttribute('data-contrast','high'); this.classList.add('active'); this.setAttribute('aria-pressed','true'); }
+  updateChartsTheme();
+});
+
+/* ============================================================
+   NAVEGAÇÃO
+============================================================= */
+const navItems = document.querySelectorAll('.nav-item');
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const target = item.dataset.panel;
+    navItems.forEach(n => { n.classList.remove('active'); n.removeAttribute('aria-current'); });
+    item.classList.add('active');
+    item.setAttribute('aria-current','page');
+    document.querySelectorAll('.panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + target);
+    });
+    const sb = document.getElementById('sidebar');
+    if (window.innerWidth <= 768) sb.classList.remove('open');
+    window.scrollTo({top:0, behavior:'smooth'});
+    // Foco no título da seção para leitores de tela
+    const h = document.querySelector('#panel-' + target + ' h2');
+    if (h) { h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); }
+  });
+});
+
+/* ============================================================
+   TEMA DOS GRÁFICOS (retorna cores do CSS atual)
+============================================================= */
+function themeColors(){
+  const cs = getComputedStyle(html);
+  return {
+    text: cs.getPropertyValue('--txt').trim(),
+    muted: cs.getPropertyValue('--muted').trim(),
+    grid: html.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.07)',
+    cardBg: cs.getPropertyValue('--chart-card').trim() || '#161b22',
+    isLight: html.getAttribute('data-theme') === 'light'
+  };
+}
+
+/* ============================================================
+   DATALABELS — configuração base
+============================================================= */
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = themeColors().muted;
+
+// Helper para gerar label com percentual / valor formatado
+function pctLabel(v){ return v.toFixed(1).replace('.',',') + '%'; }
+function numLabel(v){ return v.toLocaleString('pt-BR'); }
+function currencyLabel(v){ return 'US$ ' + v.toFixed(2).replace('.',','); }
+function daysLabel(v){ return v + ' d'; }
+
+/* ============================================================
+   CHARTS
+============================================================= */
+const charts = {};
+
+/* 1. OVERVIEW — DOUGHNUT */
+charts.overview = new Chart(document.getElementById('chartOverview'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Confirmado (63%)', 'Cancelado (37%)'],
+    datasets: [{
+      data: [75166, 44224],
+      backgroundColor: ['#3fb950', '#f85149'],
+      borderColor: themeColors().cardBg,
+      borderWidth: 4,
+      hoverOffset: 10
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
+    layout:{ padding:{ top:6, bottom:6 } },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, color: themeColors().text, font:{ size:12 } } },
+      tooltip: {
+        callbacks: { label: c => {
+          const t = c.dataset.data.reduce((a,b)=>a+b,0);
+          return `${c.label}: ${c.parsed.toLocaleString('pt-BR')} (${(c.parsed/t*100).toFixed(2)}%)`;
+        }}
+      },
+      datalabels: {
+        color: '#ffffff',
+        font: { size: 14, weight: '800' },
+        formatter: (v, ctx) => {
+          const t = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return (v/t*100).toFixed(1).replace('.',',') + '%';
+        },
+        textStrokeColor: 'rgba(0,0,0,.35)',
+        textStrokeWidth: 2
+      }
+    }
+  }
+});
+
+/* 2. HOTELS — BARRAS AGRUPADAS */
+charts.hotels = new Chart(document.getElementById('chartHotels'), {
+  type: 'bar',
+  data: {
+    labels: ['City Hotel', 'Resort Hotel'],
+    datasets: [
+      { label: 'Confirmado', data: [58.27, 72.24], backgroundColor: '#3fb950', borderRadius: 6, barPercentage: .6 },
+      { label: 'Cancelado', data: [41.73, 27.76], backgroundColor: '#f85149', borderRadius: 6, barPercentage: .6 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ top:24 } },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, color: themeColors().text } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y}%` } },
+      datalabels: {
+        anchor: 'end', align: 'end', offset: 2,
+        color: themeColors().text, font:{ weight:'800', size:11 },
+        formatter: pctLabel
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: themeColors().text } },
+      y: { grid: { color: themeColors().grid }, max: 85, ticks: { callback: v => v + '%', color: themeColors().muted } }
+    }
+  }
+});
+
+/* 3. COMPOSIÇÃO — STACKED 100% */
+charts.composicao = new Chart(document.getElementById('chartComposicao'), {
+  type: 'bar',
+  data: {
+    labels: ['City Hotel', 'Resort Hotel'],
+    datasets: [
+      { label: 'Adultos', data: [95.05, 92.91], backgroundColor: '#79c0ff', borderRadius: 4 },
+      { label: 'Crianças', data: [4.69, 6.40], backgroundColor: '#58a6ff', borderRadius: 4 },
+      { label: 'Bebês', data: [0.25, 0.69], backgroundColor: '#1f6feb', borderRadius: 4 }
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ right:24 } },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, color: themeColors().text } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.x}%` } },
+      datalabels: {
+        color: (ctx) => ctx.datasetIndex === 0 ? '#0d1117' : '#ffffff',
+        font: { weight: '800', size: 11 },
+        formatter: (v, ctx) => {
+          // Não exibe em segmentos muito pequenos
+          if (v < 1.5) return '';
+          return pctLabel(v);
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { color: themeColors().grid }, max: 100, ticks: { callback: v => v + '%', color: themeColors().muted } },
+      y: { stacked: true, grid: { display: false }, ticks: { color: themeColors().text, font:{ weight:'700' } } }
+    }
+  }
+});
+
+/* 4. CLIENTES — STACKED 100% */
+charts.cliente = new Chart(document.getElementById('chartCliente'), {
+  type: 'bar',
+  data: {
+    labels: ['Transient', 'T-Party', 'Contract', 'Group'],
+    datasets: [
+      { label: 'Confirmado', data: [59.25, 74.61, 69.05, 89.77], backgroundColor: '#3fb950', borderRadius: 4 },
+      { label: 'Cancelado', data: [40.75, 25.39, 30.95, 10.23], backgroundColor: '#f85149', borderRadius: 4 }
+    ]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ right:24 } },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, color: themeColors().text } },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.x}%` } },
+      datalabels: {
+        color: '#ffffff', font: { weight: '800', size: 11 },
+        formatter: (v) => v >= 5 ? pctLabel(v) : ''
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { color: themeColors().grid }, max: 100, ticks: { callback: v => v + '%', color: themeColors().muted } },
+      y: { stacked: true, grid: { display: false }, ticks: { color: themeColors().text, font:{ weight:'700' } } }
+    }
+  }
+});
+
+/* 5. LEAD TIME — BARRAS HORIZONTAIS */
+charts.lead = new Chart(document.getElementById('chartLead'), {
+  type: 'bar',
+  data: {
+    labels: ['Não Cancelados', 'Cancelados'],
+    datasets: [{
+      data: [79.98, 144.85],
+      backgroundColor: ['#3fb950', '#f85149'],
+      borderRadius: 10, barPercentage: .55
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ right:60 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.parsed.x} dias` } },
+      datalabels: {
+        anchor: 'end', align: 'end', offset: 6,
+        color: themeColors().text, font: { weight: '800', size: 12 },
+        formatter: daysLabel
+      }
+    },
+    scales: {
+      x: { grid: { color: themeColors().grid }, ticks: { callback: v => v + ' d', color: themeColors().muted }, max: 170 },
+      y: { grid: { display: false }, ticks: { color: themeColors().text, font: { size: 12, weight: '700' } } }
+    }
+  }
+});
+
+/* 6. SAZONALIDADE — BAR + LINE */
+charts.seasonal = new Chart(document.getElementById('chartSeasonal'), {
+  data: {
+    labels: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    datasets: [
+      { type:'bar', label:'Reservas', data:[5929,8868,9794,11889,11791,10939,12661,13877,18588,11168,6794,6780],
+        backgroundColor:'rgba(88,166,255,.65)', borderRadius:6, yAxisID:'y',
+        datalabels:{ anchor:'end', align:'end', offset:2, color: themeColors().text, font:{ weight:'700', size:9 }, formatter:numLabel }
+      },
+      { type:'line', label:'ADR (US$)', data:[70.36,73.58,98.68,100.38,108.70,116.67,126.79,140.11,105.05,87.99,73.79,81.08],
+        borderColor:'#e8b84b', backgroundColor:'#e8b84b', borderWidth:3, tension:.35,
+        pointRadius:4, pointBackgroundColor: themeColors().cardBg, pointBorderColor:'#e8b84b', pointBorderWidth:2, yAxisID:'y1',
+        datalabels:{ display:false }
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    layout:{ padding:{ top:22, right:44 } },
+    plugins: {
+      legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, color: themeColors().text } },
+      tooltip: {
+        callbacks: { label: c => c.dataset.label === 'Reservas'
+          ? `Reservas: ${c.parsed.y.toLocaleString('pt-BR')}`
+          : `ADR: US$ ${c.parsed.y.toFixed(2)}` }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: themeColors().text } },
+      y: { position: 'left', grid: { color: themeColors().grid }, title: { display: true, text: 'Reservas', color: themeColors().muted }, ticks: { color: themeColors().muted } },
+      y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'ADR (US$)', color: '#e8b84b' }, ticks: { color: '#e8b84b' } }
+    }
+  }
+});
+
+/* 7. PAÍSES — VOLUME */
+charts.paises = new Chart(document.getElementById('chartPaises'), {
+  type: 'bar',
+  data: {
+    labels: ['Portugal','Reino Unido','França','Espanha','Alemanha','Itália','Irlanda','Bélgica','Brasil','P. Baixos'],
+    datasets: [{
+      data: [48550,12129,10415,8568,7287,3766,3375,2342,2224,2184],
+      backgroundColor: ['#e8b84b','#d9a93c','#c99a33','#b98a2b','#a97a22','#8a6a2a','#6f5a2f','#5a4a2f','#463c2c','#3a332a'],
+      borderRadius: 6, barPercentage: .72
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ right:70 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.parsed.x.toLocaleString('pt-BR')} reservas` } },
+      datalabels: {
+        anchor: 'end', align: 'end', offset: 4,
+        color: themeColors().text, font: { weight: '700', size: 10 },
+        formatter: numLabel
+      }
+    },
+    scales: {
+      x: { grid: { color: themeColors().grid }, ticks: { callback: v => v.toLocaleString('pt-BR'), color: themeColors().muted }, max: 55000 },
+      y: { grid: { display: false }, ticks: { color: themeColors().text } }
+    }
+  }
+});
+
+/* 8. PAÍSES — CANCELAMENTOS */
+charts.cancelPaises = new Chart(document.getElementById('chartCancelPaises'), {
+  type: 'bar',
+  data: {
+    labels: ['Portugal','Reino Unido','Espanha','França','Itália','Alemanha','Irlanda','Brasil','EUA','Bélgica'],
+    datasets: [{
+      data: [27519,2453,2177,1934,1333,1218,832,830,501,474],
+      backgroundColor: ['#f85149','#f87171','#fca5a5','#fbbf24','#fcd34d','#a3e635','#fde68a','#fef3c7','#e0f2fe','#dbeafe'],
+      borderRadius: 6, barPercentage: .72
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    layout:{ padding:{ right:70 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${c.parsed.x.toLocaleString('pt-BR')} cancelamentos` } },
+      datalabels: {
+        anchor: 'end', align: 'end', offset: 4,
+        color: themeColors().text, font: { weight: '700', size: 10 },
+        formatter: numLabel
+      }
+    },
+    scales: {
+      x: { grid: { color: themeColors().grid }, ticks: { callback: v => v.toLocaleString('pt-BR'), color: themeColors().muted }, max: 31000 },
+      y: { grid: { display: false }, ticks: { color: themeColors().text } }
+    }
+  }
+});
+
+/* ============================================================
+   ATUALIZAR TEMA DOS GRÁFICOS
+============================================================= */
+function updateChartsTheme(){
+  const t = themeColors();
+  // Atualiza cor global default
+  Chart.defaults.color = t.muted;
+
+  Object.values(charts).forEach(ch => {
+    // Escalas
+    if (ch.options.scales) {
+      Object.values(ch.options.scales).forEach(sc => {
+        if (sc.ticks) sc.ticks.color = t.muted;
+        if (sc.grid && sc.grid.color && sc.grid.display !== false) sc.grid.color = t.grid;
+        if (sc.title) sc.title.color = sc.title.text === 'ADR (US$)' ? '#e8b84b' : t.muted;
+      });
+    }
+    // Legendas
+    if (ch.options.plugins.legend && ch.options.plugins.legend.labels) {
+      ch.options.plugins.legend.labels.color = t.text;
+    }
+    // Datalabels (exceto doughnut que é sempre branco)
+    if (ch.options.plugins.datalabels && ch.canvas.id !== 'chartOverview') {
+      const dl = ch.options.plugins.datalabels;
+      if (typeof dl.color !== 'function') dl.color = t.text;
+    }
+    // Doughnut border color
+    if (ch.config.type === 'doughnut') {
+      ch.data.datasets[0].borderColor = t.cardBg;
+    }
+    // Pontos da linha
+    if (ch.config.data.datasets) {
+      ch.config.data.datasets.forEach(ds => {
+        if (ds.type === 'line' && ds.pointBackgroundColor) ds.pointBackgroundColor = t.cardBg;
+      });
+    }
+    ch.update('none');
+  });
+}
+
+/* ============================================================
+   DOWNLOAD PNG DO GRÁFICO
+============================================================= */
+window.downloadChart = function(key, filename){
+  const chart = charts[key];
+  if (!chart) return;
+  const srcCanvas = chart.canvas;
+  const tmp = document.createElement('canvas');
+  const scale = 2; // 2x para nitidez
+  tmp.width = srcCanvas.width * scale;
+  tmp.height = srcCanvas.height * scale;
+  const ctx = tmp.getContext('2d');
+  ctx.scale(scale, scale);
+  // Fundo do tema atual
+  ctx.fillStyle = themeColors().cardBg || '#161b22';
+  ctx.fillRect(0, 0, srcCanvas.width, srcCanvas.height);
+  // Desenha o gráfico por cima
+  ctx.drawImage(srcCanvas, 0, 0);
+
+  // Rodapé com branding dentro da imagem
+  const pad = 14;
+  const fs = 11;
+  ctx.fillStyle = themeColors().isLight ? 'rgba(0,0,0,.45)' : 'rgba(255,255,255,.45)';
+  ctx.font = `600 ${fs}px 'Segoe UI', system-ui, sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.fillText('Hotel Booking Demand · EDA 2026', pad, srcCanvas.height - 8);
+  ctx.textAlign = 'right';
+  ctx.fillText(new Date().toLocaleDateString('pt-BR'), srcCanvas.width - pad, srcCanvas.height - 8);
+
+  const link = document.createElement('a');
+  link.download = filename + '_HotelBookingDemand.png';
+  link.href = tmp.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+/* ============================================================
+   TABELAS DINÂMICAS
+============================================================= */
+const seasonalData = [
+  { m:'Janeiro', r:5929, a:70.36 },{ m:'Fevereiro', r:8868, a:73.58 },{ m:'Março', r:9794, a:98.68 },
+  { m:'Abril', r:11889, a:100.38 },{ m:'Maio', r:11791, a:108.70 },{ m:'Junho', r:10939, a:116.67 },
+  { m:'Julho', r:12661, a:126.79 },{ m:'Agosto', r:13877, a:140.11 },{ m:'Setembro', r:18588, a:105.05 },
+  { m:'Outubro', r:11168, a:87.99 },{ m:'Novembro', r:6794, a:73.79 },{ m:'Dezembro', r:6780, a:81.08 }
+];
+const tbS = document.getElementById('tbodySeasonal');
+seasonalData.forEach(d => {
+  let cls='gold', lbl='Média';
+  if (d.r > 13000) { cls='red'; lbl='Alta'; }
+  else if (d.r < 8000) { cls='green'; lbl='Baixa'; }
+  tbS.insertAdjacentHTML('beforeend',
+    `<tr><td>${d.m}</td><td>${d.r.toLocaleString('pt-BR')}</td><td>US$ ${d.a.toFixed(2)}</td><td><span class="pill ${cls}">${lbl}</span></td></tr>`);
+});
+
+const paisesData = [
+  { p:'Portugal', r:48550, c:27519, t:56.64 },{ p:'Reino Unido', r:12129, c:2453, t:20.22 },
+  { p:'França', r:10415, c:1934, t:18.57 },{ p:'Espanha', r:8568, c:2177, t:25.41 },
+  { p:'Alemanha', r:7287, c:1218, t:16.71 },{ p:'Itália', r:3766, c:1333, t:35.40 },
+  { p:'Irlanda', r:3375, c:832, t:24.65 },{ p:'Bélgica', r:2342, c:474, t:20.24 },
+  { p:'Brasil', r:2224, c:830, t:37.32 },{ p:'Países Baixos', r:2184, c:350, t:16.03 }
+];
+const tbP = document.getElementById('tbodyPaises');
+paisesData.forEach(d => {
+  const cls = d.t > 40 ? 'red' : (d.t > 25 ? 'gold' : 'green');
+  tbP.insertAdjacentHTML('beforeend',
+    `<tr><td><b>${d.p}</b></td><td>${d.r.toLocaleString('pt-BR')}</td><td>${d.c.toLocaleString('pt-BR')}</td><td><span class="pill ${cls}">${d.t.toFixed(2)}%</span></td></tr>`);
+});
+
+/* ============================================================
+   PERGUNTAS DE PESQUISA
+============================================================= */
+const perguntas = [
+  { q: 'Proporção de cancelamentos e variação por hotel?', a: 'Global: <b>37%</b>. City Hotel: <b>41,73%</b> · Resort Hotel: <b>27,76%</b>. City concentra 75% dos cancelamentos absolutos.' },
+  { q: 'Lead time difere entre canceladas e não canceladas?', a: 'Sim. Não cancelados: <b>79,98 dias</b> · Cancelados: <b>144,85 dias</b> — quase o dobro.' },
+  { q: 'Distribuição do ADR é assimétrica?', a: 'Sim. <b>Assimetria positiva (1,05)</b> — cauda longa de tarifas premium.' },
+  { q: 'Há sazonalidade no volume e na tarifa?', a: 'Sim. Pico em <b>Ago (13.877 / US$ 140,11)</b> · Vale em <b>Jan–Fev (~US$ 73)</b>.' },
+  { q: 'Correlações entre variáveis numéricas?', a: 'Fortes: <b>ano × semana (0,54)</b> e <b>noites úteis × fim de semana (0,50)</b>. Demais fracas.' },
+  { q: 'Top países emissores?', a: '<b>Portugal, Reino Unido, França, Espanha, Alemanha</b>. Portugal também lidera cancelamentos (27.519).' },
+  { q: 'Segmento de mercado associado ao cancelamento?', a: 'Sim. <b>Transient: 40,75%</b> vs. <b>Group: 10,23%</b> — diferença de quase 4×.' },
+  { q: 'Como se distribui a duração da estadia?', a: 'Predomínio de <b>estadias curtas</b> (1–4 noites), com cauda longa em pacotes de férias.' }
+];
+const qaGrid = document.getElementById('qaGrid');
+perguntas.forEach((item, i) => {
+  qaGrid.insertAdjacentHTML('beforeend',
+    `<div class="qa-c" role="article" aria-label="Pergunta ${i+1}">
+      <div class="num" aria-hidden="true">${i+1}</div>
+      <div>
+        <div class="q">${item.q}</div>
+        <div class="a">${item.a}</div>
+      </div>
+    </div>`);
+});
+
+/* ============================================================
+   MOBILE — aria-expanded no toggle
+============================================================= */
+document.querySelector('.toggle-mobile').addEventListener('click', function(){
+  const open = document.getElementById('sidebar').classList.contains('open');
+  this.setAttribute('aria-expanded', String(!open));
+});
+
+});
+</script>
+</body>
+</html>
